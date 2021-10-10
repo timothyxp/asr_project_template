@@ -1,4 +1,5 @@
 import random
+from itertools import repeat
 from random import shuffle
 
 import PIL
@@ -40,6 +41,8 @@ class Trainer(BaseTrainer):
         self.text_encoder = text_encoder
         self.config = config
         self.data_loader = data_loader
+        self.overfit_batch = self.config['trainer'].get('overfit_batch')
+
         if len_epoch is None:
             # epoch-based training
             self.len_epoch = len(self.data_loader)
@@ -88,6 +91,9 @@ class Trainer(BaseTrainer):
         )
 
         loss = self.criterion(**batch)
+        if self.overfit_batch:
+            self.logger.info(loss.item())
+
         loss.backward()
 
         self._clip_grad_norm()
@@ -125,9 +131,13 @@ class Trainer(BaseTrainer):
         self.model.train()
         self.train_metrics.reset()
         self.writer.add_scalar("epoch", epoch)
-        for batch_idx, batch in enumerate(
-                tqdm(self.data_loader, desc="train", total=self.len_epoch)
-        ):
+
+        if self.overfit_batch:
+            iterator = tqdm(repeat(next(iter(tqdm(self.data_loader))), times=10_000), total=10_000)
+        else:
+            iterator = tqdm(self.data_loader, desc="train", total=self.len_epoch)
+
+        for batch_idx, batch in enumerate(iterator):
             try:
                 self._train_iteration(batch, epoch, batch_idx)
             except RuntimeError as e:
@@ -140,7 +150,7 @@ class Trainer(BaseTrainer):
                     continue
                 else:
                     raise e
-            if batch_idx >= self.len_epoch:
+            if batch_idx >= self.len_epoch and not self.overfit_batch:
                 break
         log = self.train_metrics.result()
 

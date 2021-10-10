@@ -12,3 +12,4 @@ torchaudio~=0.9.1
 datasets
 torch_audiomentations
 editdistance
+jiwer

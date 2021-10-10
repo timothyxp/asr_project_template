@@ -11,21 +11,17 @@ import hw_asr.model as module_arch
 from hw_asr.datasets.utils import get_dataloaders
 from hw_asr.text_encoder.ctc_char_text_encoder import CTCCharTextEncoder
 from hw_asr.trainer import Trainer
-from hw_asr.utils import prepare_device
+from hw_asr.utils import prepare_device, set_random_seed
 from hw_asr.utils.parse_config import ConfigParser
 
 warnings.filterwarnings("ignore", category=UserWarning)
-
-# fix random seeds for reproducibility
-SEED = 123
-torch.manual_seed(SEED)
-torch.backends.cudnn.deterministic = True
-torch.backends.cudnn.benchmark = False
-np.random.seed(SEED)
+set_random_seed()
 
 
 def main(config):
     logger = config.get_logger("train")
+    logger.info(f"launch logging via\n tail -f {config.log_dir}/info.log")
+    logger.info(f"launch tensorboard via\n tensorboard --logdir {config.log_dir}")
 
     # text_encoder
     text_encoder = CTCCharTextEncoder.get_simple_alphabet()

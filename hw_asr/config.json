@@ -14,10 +14,10 @@
     "spectrogram": []
   },
   "arch": {
-    "type": "BaselineModel",
+    "type": "RNNModel",
     "args": {
       "n_feats": 128,
-      "fc_hidden": 512
+      "hidden_size": 512
     }
   },
   "data": {
@@ -28,7 +28,7 @@
         {
           "type": "LibrispeechDataset",
           "args": {
-            "part": "train-clean-100",
+            "part": "dev-clean",
             "max_audio_length": 20.0,
             "max_text_length": 200
           }
@@ -87,6 +87,7 @@
   "trainer": {
     "epochs": 50,
     "save_dir": "saved/",
+    "overfit_batch": true,
     "save_period": 5,
     "verbosity": 2,
     "monitor": "min val_loss",

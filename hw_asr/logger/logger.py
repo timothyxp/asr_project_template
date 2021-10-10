@@ -11,6 +11,7 @@ def setup_logging(
     """
     Setup logging configuration
     """
+
     if log_config is None:
         log_config = str(ROOT_PATH / "hw_asr" / "logger" / "logger_config.json")
     log_config = Path(log_config)
@@ -22,6 +23,7 @@ def setup_logging(
                 handler["filename"] = str(save_dir / handler["filename"])
 
         logging.config.dictConfig(config)
+
     else:
         print(
             "Warning: logging configuration file is not found in {}.".format(log_config)
