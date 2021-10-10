@@ -28,6 +28,9 @@ class CTCCharTextEncoder(CharTextEncoder):
 
         for ind in inds[1:]:
             if ind != ctc_inds[-1]:
+                if ind == 0 and self.ind2char[ctc_inds[-1]] == ' ':
+                    continue
+
                 ctc_inds.append(ind)
 
         return ''.join(self.ind2char[ind] for ind in ctc_inds if ind != 0)
