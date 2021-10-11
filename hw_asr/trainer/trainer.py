@@ -133,7 +133,7 @@ class Trainer(BaseTrainer):
         self.writer.add_scalar("epoch", epoch)
 
         if self.overfit_batch:
-            iterator = tqdm(repeat(next(iter(tqdm(self.data_loader))), times=10_000), total=10_000)
+            iterator = tqdm(repeat(next(iter(tqdm(self.data_loader))), times=100), total=100)
         else:
             iterator = tqdm(self.data_loader, desc="train", total=self.len_epoch)
 
@@ -150,7 +150,7 @@ class Trainer(BaseTrainer):
                     continue
                 else:
                     raise e
-            if batch_idx >= self.len_epoch and not self.overfit_batch:
+            if batch_idx >= self.len_epoch:
                 break
         log = self.train_metrics.result()
 

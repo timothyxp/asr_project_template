@@ -17,7 +17,7 @@
     "type": "RNNModel",
     "args": {
       "n_feats": 128,
-      "hidden_size": 512
+      "hidden_size": 128
     }
   },
   "data": {
@@ -53,9 +53,9 @@
     }
   },
   "optimizer": {
-    "type": "SGD",
+    "type": "AdamW",
     "args": {
-      "lr": 3e-4
+      "lr": 4e-3
     }
   },
   "loss": {
@@ -82,7 +82,7 @@
       "steps_per_epoch": 100,
       "epochs": 50,
       "anneal_strategy": "cos",
-      "max_lr": 4e-3,
+      "max_lr": 1e-2,
       "pct_start": 0.2
     }
   },
