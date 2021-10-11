@@ -89,6 +89,7 @@ class Trainer(BaseTrainer):
         batch["log_probs_length"] = self.model.transform_input_lengths(
             batch["spectrogram_length"]
         )
+        print(batch['text'])
 
         loss = self.criterion(**batch)
         if self.overfit_batch:
@@ -174,8 +175,12 @@ class Trainer(BaseTrainer):
                     enumerate(self.valid_data_loader), desc="validation",
                     total=len(self.valid_data_loader)
             ):
+                print(batch['text'])
+
                 batch = self.move_batch_to_device(batch, self.device)
-                batch["log_probs"] = self.model(**batch)
+                batch["logits"] = self.model(**batch)
+                batch["log_probs"] = F.log_softmax(batch["logits"], dim=-1)
+
                 batch["log_probs_length"] = self.model.transform_input_lengths(
                     batch["spectrogram_length"]
                 )
