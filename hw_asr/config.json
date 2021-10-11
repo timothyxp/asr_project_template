@@ -87,7 +87,7 @@
   "trainer": {
     "epochs": 50,
     "save_dir": "saved/",
-    "overfit_batch": true,
+    "overfit_batch": false,
     "save_period": 5,
     "verbosity": 2,
     "monitor": "min val_loss",
