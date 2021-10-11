@@ -22,7 +22,7 @@
   },
   "data": {
     "train": {
-      "batch_size": 20,
+      "batch_size": 4,
       "num_workers": 5,
       "datasets": [
         {
@@ -31,13 +31,13 @@
             "part": "dev-clean",
             "max_audio_length": 20.0,
             "max_text_length": 200,
-            "limit": 1
+            "limit": 20
           }
         }
       ]
     },
     "val": {
-      "batch_size": 20,
+      "batch_size": 4,
       "num_workers": 5,
       "datasets": [
         {
@@ -46,7 +46,7 @@
             "part": "dev-clean",
             "max_audio_length": 20.0,
             "max_text_length": 200,
-            "limit": 1
+            "limit": 20
           }
         }
       ]
