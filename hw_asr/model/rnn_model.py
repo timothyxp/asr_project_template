@@ -14,8 +14,8 @@ class RNNModel(BaseModel):
         self.out = nn.Linear(in_features=hidden_size, out_features=n_class)
 
     def forward(self, spectrogram, *args, **kwargs):
-        result = self.bn1(spectrogram.permute(0, 2, 1)).permute(0, 2, 1)
-        result, (h_n, c_n) = self.rnn(result)
+       # result = self.bn1(spectrogram.permute(0, 2, 1)).permute(0, 2, 1)
+        result, (h_n, c_n) = self.rnn(spectrogram)
         result = self.out(result)
         return result
 
