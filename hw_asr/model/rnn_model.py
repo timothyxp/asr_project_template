@@ -1,7 +1,6 @@
 from torch import nn
 import torch
-from torch.nn import Sequential
-
+from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence
 from hw_asr.base import BaseModel
 
 
@@ -10,20 +9,22 @@ class RNNModel(BaseModel):
         super().__init__(n_feats, n_class, *args, **kwargs)
 
         self.bn1 = nn.BatchNorm1d(n_feats)
-        self.rnn = nn.LSTM(n_feats, hidden_size, num_layers=1, batch_first=True, bias=False)
+        self.rnn = nn.LSTM(n_feats, hidden_size, num_layers=num_layers, batch_first=True, bias=False)
 
-        self.out = nn.Linear(in_features=hidden_size, out_features=n_class)
+        self.out = nn.Sequential(
+            nn.Linear(in_features=hidden_size, out_features=hidden_size),
+            nn.LeakyReLU(),
+            nn.Linear(in_features=hidden_size, out_features=n_class)
+        )
 
-    def forward(self, spectrogram, *args, **kwargs):
+    def forward(self, spectrogram, spectrogram_length, *args, **kwargs):
         spectrogram = spectrogram * 100000
-        #torch.save(spectrogram, "spectrogram1.pth")
 
         result = self.bn1(spectrogram.permute(0, 2, 1)).permute(0, 2, 1)
-      #  torch.save(result, "spectrogram2.pth")
 
-        result, (h_n, c_n) = self.rnn(result)
-
-      #  torch.save(result, "result.pth")
+        result = pack_padded_sequence(result, spectrogram_length, batch_first=True, enforce_sorted=False)
+        result, (h, c) = self.rnn(result)
+        result, _ = pad_packed_sequence(result, batch_first=True)
 
         result = self.out(result)
         return result
