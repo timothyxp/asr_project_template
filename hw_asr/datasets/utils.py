@@ -1,6 +1,6 @@
 from operator import xor
 
-from torch.utils.data import DataLoader, ChainDataset
+from torch.utils.data import DataLoader, ConcatDataset
 
 import hw_asr.augmentations
 import hw_asr.batch_sampler as batch_sampler_module
@@ -31,7 +31,7 @@ def get_dataloaders(configs: ConfigParser, text_encoder: BaseTextEncoder):
                 wave_augs=wave_augs, spec_augs=spec_augs))
         assert len(datasets)
         if len(datasets) > 1:
-            dataset = ChainDataset(datasets)
+            dataset = ConcatDataset(datasets)
         else:
             dataset = datasets[0]
 
