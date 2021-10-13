@@ -18,8 +18,10 @@ def get_dataloaders(configs: ConfigParser, text_encoder: BaseTextEncoder):
         # set train augmentations
         if split == 'train':
             wave_augs, spec_augs = hw_asr.augmentations.from_configs(configs)
+            drop_last = True
         else:
             wave_augs, spec_augs = None, None
+            drop_last = False
 
         # create and join datasets
         datasets = []
@@ -50,6 +52,8 @@ def get_dataloaders(configs: ConfigParser, text_encoder: BaseTextEncoder):
         # create dataloader
         dataloader = DataLoader(
             dataset, batch_size=bs, collate_fn=collate_fn,
-            shuffle=shuffle, num_workers=num_workers, batch_sampler=batch_sampler, pin_memory=True)
+            shuffle=shuffle, num_workers=num_workers,
+            batch_sampler=batch_sampler, pin_memory=True, drop_last=drop_last
+        )
         dataloaders[split] = dataloader
     return dataloaders
