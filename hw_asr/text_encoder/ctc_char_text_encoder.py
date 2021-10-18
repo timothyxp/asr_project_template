@@ -4,6 +4,8 @@ import torch
 
 from hw_asr.text_encoder.char_text_encoder import CharTextEncoder
 
+from pyctcdecode import build_ctcdecoder
+
 
 class CTCCharTextEncoder(CharTextEncoder):
     EMPTY_TOK = "^"
@@ -43,6 +45,7 @@ class CTCCharTextEncoder(CharTextEncoder):
         char_length, voc_size = probs.shape
         assert voc_size == len(self.ind2char)
         hypos = []
-        # TODO: your code here
-        raise NotImplementedError
+
+        decoder = build_ctcdecoder()
+
         return sorted(hypos, key=lambda x: x[1], reverse=True)
