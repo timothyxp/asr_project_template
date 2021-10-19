@@ -11,7 +11,7 @@ import hw_asr.model as module_model
 import hw_asr.loss as module_loss
 import hw_asr.metric as module_metric
 from hw_asr.trainer import Trainer
-from hw_asr.utils import prepare_device, set_random_seed
+from hw_asr.utils import prepare_device, set_random_seed, MetricTracker
 from hw_asr.utils import ROOT_PATH
 import collections
 from hw_asr.utils.parse_config import ConfigParser
@@ -21,11 +21,12 @@ DEFAULT_TEST_CONFIG_PATH = ROOT_PATH / "default_test_config.json"
 DEFAULT_CHECKPOINT_PATH = ROOT_PATH / "default_test_model" / "checkpoint.pth"
 
 
-def main(config, out_file):
+def main(config, out_file, jobs):
     logger = config.get_logger("test")
 
     # text_encoder
-    text_encoder = CTCCharTextEncoder.get_simple_alphabet()
+    corpus_path = ROOT_PATH / 'data' / 'datasets' / 'librispeech' / 'test-clean'
+    text_encoder = CTCCharTextEncoder.get_simple_alphabet(corpus_path=str(corpus_path))
 
     # setup data_loader instances
     dataloaders = get_dataloaders(config, text_encoder)
@@ -54,6 +55,9 @@ def main(config, out_file):
     # prepare model for testing
     model = model.to(device)
     model.eval()
+    metrics_tracker = MetricTracker(
+        "loss", *[m.name for m in metrics]
+    )
 
     results = []
 
@@ -67,15 +71,25 @@ def main(config, out_file):
             )
             batch["probs"] = batch["log_probs"].exp().cpu()
             batch["argmax"] = batch["probs"].argmax(-1)
-            for i in range(len(batch["text"])):
+
+            batch['beam_text'] = text_encoder.ctc_beam_search(
+                batch["probs"], beam_size=100, n_jobs=jobs
+            )
+
+            loss = loss_module(**batch)
+            metrics_tracker.update("loss", loss.detach().cpu().numpy(), n=len(batch['text']))
+            for metric in metrics:
+                metrics_tracker.update(metric.name, metric(**batch), n=len(batch['text']))
+
+            for i in tqdm(range(len(batch["text"]))):
                 results.append({
                     "ground_trurh": batch["text"][i],
                     "pred_text_argmax": text_encoder.ctc_decode(batch["argmax"][i]),
-                    # "pred_text_beam_search": text_encoder.ctc_beam_search(
-                    #     batch["probs"], beam_size=500
-                    # )[:10]
-
+                    "pred_text_beam_search": batch["beam_text"][i]
                 })
+
+    print(metrics_tracker.result())
+
     with Path(out_file).open('w') as f:
         json.dump(results, f, indent=2)
 
@@ -122,6 +136,8 @@ if __name__ == "__main__":
         )
     ]
 
+    parsed_args = args.parse_args()
+
     config = ConfigParser.from_args(args, options)
 
-    main(config, config['data']['val']['output'])
+    main(config, config['data']['val']['output'], parsed_args.jobs)
