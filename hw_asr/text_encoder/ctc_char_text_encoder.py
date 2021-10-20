@@ -14,6 +14,7 @@ class CTCCharTextEncoder(CharTextEncoder):
     def __init__(self, alphabet: List[str], word_chars=None, corpus=None):
         super().__init__(alphabet)
         self.alphabet = ''.join(alphabet)
+        self.alphabet = self.alphabet[-1:] + self.alphabet[:-1]
         self.ind2char = {
             0: self.EMPTY_TOK
         }
@@ -21,7 +22,6 @@ class CTCCharTextEncoder(CharTextEncoder):
             self.ind2char[max(self.ind2char.keys()) + 1] = text
         self.char2ind = {v: k for k, v in self.ind2char.items()}
 
-        self.decoder = build_ctcdecoder(alphabet)
         self.word_chars = word_chars
         self.corpus = corpus
 
