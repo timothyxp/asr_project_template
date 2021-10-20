@@ -43,7 +43,7 @@ class CTCCharTextEncoder(CharTextEncoder):
 
         return ''.join(self.ind2char[ind] for ind in ctc_inds if ind != 0)
 
-    def ctc_beam_search(self, probs: torch.tensor, beam_size: int = 100, n_jobs=1) -> List[str]:
+    def ctc_beam_search(self, probs: torch.tensor, wave_len: List[int], beam_size: int = 100, n_jobs=1) -> List[str]:
         """
         Performs beam search and returns a list of pairs (hypothesis, hypothesis probability).
         """
@@ -68,12 +68,20 @@ class CTCCharTextEncoder(CharTextEncoder):
         )
 
         probs[:, :, [0, -1]] = probs[:, :, [-1, 0]]
-        labels_arr = decoder.compute(probs)
+        labels_arr = []
+
+        for i in range(len(wave_len)):
+            probs_sample = probs[:wave_len[i], i:i+1, :]
+            labels_arr.append(
+                decoder.compute(probs_sample)
+            )
+
         res_str = []
 
         for label_str in labels_arr:
+            print(label_str)
             res_str.append([])
-            s = ''.join([self.alphabet[label] for label in label_str])
+            s = ''.join([self.alphabet[label] for label in label_str[0]])
             res_str[-1].append(s)
 
         return [''.join(res) for res in res_str]

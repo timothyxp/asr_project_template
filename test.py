@@ -73,7 +73,7 @@ def main(config, out_file, jobs):
             batch["argmax"] = batch["probs"].argmax(-1)
 
             batch['beam_text'] = text_encoder.ctc_beam_search(
-                batch["probs"], beam_size=100, n_jobs=jobs
+                batch["probs"], batch['log_probs_length'], beam_size=100, n_jobs=jobs
             )
 
             loss = loss_module(**batch)
