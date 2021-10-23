@@ -20,9 +20,26 @@
         "args": {
           "sample_rate": 16000
         }
+      },
+      {
+        "type": "Polarity",
+        "args": {}
       }
     ],
-    "spectrogram": []
+    "spectrogram": [
+      {
+        "type": "RandomErase",
+        "args": {
+          "dim": -1
+        }
+      },
+      {
+        "type": "RandomErase",
+        "args": {
+          "dim": -2
+        }
+      }
+    ]
   },
   "arch": {
     "type": "RNNModel",
@@ -47,6 +64,7 @@
       ]
     },
     "val": {
+      "output": "output.json",
       "batch_size": 2,
       "num_workers": 5,
       "datasets": [

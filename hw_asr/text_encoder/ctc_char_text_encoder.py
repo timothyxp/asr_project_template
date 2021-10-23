@@ -3,8 +3,6 @@ from typing import List, Tuple, Union
 import torch
 
 from hw_asr.text_encoder.char_text_encoder import CharTextEncoder
-from word_beam_search import WordBeamSearch
-import multiprocessing as mp
 from fast_ctc_decode import beam_search
 
 
@@ -59,7 +57,7 @@ class CTCCharTextEncoder(CharTextEncoder):
             probs_sample = probs[i, :wave_len[i], :]
             labels_arr.append(
                 beam_search(probs_sample, self.EMPTY_TOK + self.alphabet,
-                            beam_size=beam_size, beam_cut_threshold=0.01)[0]
+                            beam_size=beam_size, beam_cut_threshold=0)[0]
             )
 
         return labels_arr

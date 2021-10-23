@@ -120,6 +120,7 @@ class Trainer(BaseTrainer):
             self._log_predictions(part="train", **batch)
             self._log_spectrogram(batch["spectrogram"])
             self._log_scalars(self.train_metrics)
+            self._log_audio(batch['audio'])
 
     def _train_epoch(self, epoch):
         """
@@ -206,6 +207,10 @@ class Trainer(BaseTrainer):
             current = batch_idx
             total = self.len_epoch
         return base.format(current, total, 100.0 * current / total)
+
+    def _log_audio(self, audios):
+        audio = random.choice(audios)
+        self.writer.add_audio("audio_train", audio, self.config.config['preprocessing']['sr'])
 
     def _log_predictions(
             self,

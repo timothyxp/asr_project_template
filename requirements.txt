@@ -13,3 +13,6 @@ datasets
 torch_audiomentations
 editdistance
 jiwer
+
+gdown
+fast_ctc_decode

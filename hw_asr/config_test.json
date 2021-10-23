@@ -44,10 +44,7 @@
         {
           "type": "LibrispeechDataset",
           "args": {
-            "part": "test-clean",
-            "max_audio_length": 20.0,
-            "max_text_length": 200,
-            "limit": 20
+            "part": "test-clean"
           }
         }
       ]

@@ -81,7 +81,7 @@ def main(config, out_file, jobs):
             for metric in metrics:
                 metrics_tracker.update(metric.name, metric(**batch), n=len(batch['text']))
 
-            for i in tqdm(range(len(batch["text"]))):
+            for i in range(len(batch["text"])):
                 results.append({
                     "ground_trurh": batch["text"][i],
                     "pred_text_argmax": text_encoder.ctc_decode(batch["argmax"][i]),
