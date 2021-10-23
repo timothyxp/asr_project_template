@@ -17,7 +17,7 @@
     "type": "RNNModel",
     "args": {
       "n_feats": 128,
-      "hidden_size": 128
+      "hidden_size": 512
     }
   },
   "data": {

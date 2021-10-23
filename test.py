@@ -25,8 +25,8 @@ def main(config, out_file, jobs):
     logger = config.get_logger("test")
 
     # text_encoder
-    corpus_path = ROOT_PATH / 'data' / 'datasets' / 'librispeech' / 'test-clean'
-    text_encoder = CTCCharTextEncoder.get_simple_alphabet(corpus_path=str(corpus_path))
+#    corpus_path = ROOT_PATH / 'data' / 'datasets' / 'librispeech' / 'test-clean'
+    text_encoder = CTCCharTextEncoder.get_simple_alphabet()
 
     # setup data_loader instances
     dataloaders = get_dataloaders(config, text_encoder)
