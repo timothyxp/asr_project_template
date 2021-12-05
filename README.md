@@ -2,10 +2,8 @@
 
 ## Installation guide
 
-< Write your installation guide here >
-
 ```shell
-pip install -r ./requirements.txt
+copy and launch start.sh
 ```
 
 ## Recommended implementation order

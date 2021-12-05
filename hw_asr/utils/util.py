@@ -5,8 +5,20 @@ from pathlib import Path
 
 import pandas as pd
 import torch
+import torch
+import numpy as np
+import random
 
 ROOT_PATH = Path(__file__).absolute().resolve().parent.parent.parent
+
+
+def set_random_seed(seed=42):
+    # fix random seeds for reproducibility
+    torch.manual_seed(seed)
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
+    np.random.seed(seed)
+    random.seed(seed)
 
 
 def ensure_dir(dirname):

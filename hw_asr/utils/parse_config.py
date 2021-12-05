@@ -150,6 +150,7 @@ def _update_config(config, modification):
         return config
 
     for k, v in modification.items():
+        print(k, v)
         if v is not None:
             _set_by_path(config, k, v)
     return config

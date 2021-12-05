@@ -1,8 +1,10 @@
-torch
+torch==1.9.1
 torchvision
 numpy
 tqdm
 tensorboard
+matplotlib
+
 
 pandas
 speechbrain~=0.5.9
@@ -10,3 +12,7 @@ torchaudio~=0.9.1
 datasets
 torch_audiomentations
 editdistance
+jiwer
+
+gdown
+fast_ctc_decode

@@ -10,8 +10,36 @@
     }
   },
   "augmentations": {
-    "wave": [],
-    "spectrogram": []
+    "wave": [
+      {
+        "type": "Gain",
+        "args": {}
+      },
+      {
+        "type": "RandomNoise",
+        "args": {
+          "sample_rate": 16000
+        }
+      },
+      {
+        "type": "Polarity",
+        "args": {}
+      }
+    ],
+    "spectrogram": [
+      {
+        "type": "RandomErase",
+        "args": {
+          "dim": -1
+        }
+      },
+      {
+        "type": "RandomErase",
+        "args": {
+          "dim": -2
+        }
+      }
+    ]
   },
   "arch": {
     "type": "RNNModel",
@@ -22,7 +50,7 @@
   },
   "data": {
     "train": {
-      "batch_size": 16,
+      "batch_size": 2,
       "num_workers": 5,
       "datasets": [
         {
@@ -36,7 +64,8 @@
       ]
     },
     "val": {
-      "batch_size": 16,
+      "output": "output.json",
+      "batch_size": 2,
       "num_workers": 5,
       "datasets": [
         {
@@ -94,7 +123,6 @@
     "early_stop": 100,
     "visualize": "wandb",
     "wandb_project": "asr_project",
-    "len_epoch": 100,
     "grad_norm_clip": 10
   }
 }

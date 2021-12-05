@@ -2,6 +2,7 @@ from typing import List
 
 import torch
 from torch import Tensor
+import numpy as np
 
 from hw_asr.base.base_metric import BaseMetric
 from hw_asr.base.base_text_encoder import BaseTextEncoder
@@ -23,3 +24,12 @@ class ArgmaxCERMetric(BaseMetric):
                 pred_text = self.text_encoder.decode(log_prob_vec)
             cers.append(calc_cer(target_text, pred_text))
         return sum(cers) / len(cers)
+
+
+class BeamCERMetric(BaseMetric):
+    def __call__(self, beam_text: List[str], text: List[str], *args, **kwargs):
+        wers = []
+        for beam_text, text in zip(beam_text, text):
+            wers.append(calc_cer(text, beam_text))
+
+        return np.mean(wers)

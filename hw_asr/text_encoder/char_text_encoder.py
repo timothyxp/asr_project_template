@@ -4,14 +4,18 @@ from string import ascii_lowercase
 from typing import List, Union
 
 import numpy as np
+import os
 from torch import Tensor
+import logging
 
 from hw_asr.base.base_text_encoder import BaseTextEncoder
+
+logger = logging.getLogger(__name__)
 
 
 class CharTextEncoder(BaseTextEncoder):
 
-    def __init__(self, alphabet: List[str]):
+    def __init__(self, alphabet: List[str], word_chars=None, corpus=None):
         self.ind2char = {k: v for k, v in enumerate(sorted(alphabet))}
         self.char2ind = {v: k for k, v in self.ind2char.items()}
 
@@ -47,6 +51,32 @@ class CharTextEncoder(BaseTextEncoder):
         a.char2ind = {v: k for k, v in ind2char}
         return a
 
+    @staticmethod
+    def get_corpus_from_path(corpus_path):
+        words = set()
+
+        for fold_num in os.listdir(corpus_path):
+            for part_num in os.listdir(os.path.join(corpus_path, fold_num)):
+                with open(os.path.join(
+                        corpus_path,
+                        fold_num, part_num,
+                        f"{fold_num}-{part_num}.trans.txt")
+                ) as f:
+                    lines = f.read().split('\n')
+                    lines = [line[line.find(' ') + 1:] for line in lines]
+
+                    for line in lines:
+                        for word in line.split(' '):
+                            words.add(word.lower())
+
+            words = list(words)
+            return ' '.join(words)
+
     @classmethod
-    def get_simple_alphabet(cls):
-        return cls(alphabet=list(ascii_lowercase + ' '))
+    def get_simple_alphabet(cls, corpus_path=None):
+        corpus = None
+        if corpus_path is not None:
+            corpus = cls.get_corpus_from_path(corpus_path)
+            logger.info(f"construct corpus {len(corpus)} len")
+
+        return cls(alphabet=list(ascii_lowercase + ' '), word_chars=ascii_lowercase, corpus=corpus)

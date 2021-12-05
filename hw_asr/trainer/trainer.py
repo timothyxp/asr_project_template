@@ -1,4 +1,5 @@
 import random
+from itertools import repeat
 from random import shuffle
 
 import PIL
@@ -40,6 +41,8 @@ class Trainer(BaseTrainer):
         self.text_encoder = text_encoder
         self.config = config
         self.data_loader = data_loader
+        self.overfit_batch = self.config['trainer'].get('overfit_batch')
+
         if len_epoch is None:
             # epoch-based training
             self.len_epoch = len(self.data_loader)
@@ -86,8 +89,13 @@ class Trainer(BaseTrainer):
         batch["log_probs_length"] = self.model.transform_input_lengths(
             batch["spectrogram_length"]
         )
+
         loss = self.criterion(**batch)
+        if self.overfit_batch:
+            self.logger.info(loss.item())
+
         loss.backward()
+
         self._clip_grad_norm()
         self.optimizer.step()
 
@@ -112,6 +120,7 @@ class Trainer(BaseTrainer):
             self._log_predictions(part="train", **batch)
             self._log_spectrogram(batch["spectrogram"])
             self._log_scalars(self.train_metrics)
+            self._log_audio(batch['audio'])
 
     def _train_epoch(self, epoch):
         """
@@ -123,9 +132,13 @@ class Trainer(BaseTrainer):
         self.model.train()
         self.train_metrics.reset()
         self.writer.add_scalar("epoch", epoch)
-        for batch_idx, batch in enumerate(
-                tqdm(self.data_loader, desc="train", total=self.len_epoch)
-        ):
+
+        if self.overfit_batch:
+            iterator = tqdm(repeat(next(iter(tqdm(self.data_loader))), times=100), total=100)
+        else:
+            iterator = tqdm(self.data_loader, desc="train", total=self.len_epoch)
+
+        for batch_idx, batch in enumerate(iterator):
             try:
                 self._train_iteration(batch, epoch, batch_idx)
             except RuntimeError as e:
@@ -162,8 +175,11 @@ class Trainer(BaseTrainer):
                     enumerate(self.valid_data_loader), desc="validation",
                     total=len(self.valid_data_loader)
             ):
+
                 batch = self.move_batch_to_device(batch, self.device)
-                batch["log_probs"] = self.model(**batch)
+                batch["logits"] = self.model(**batch)
+                batch["log_probs"] = F.log_softmax(batch["logits"], dim=-1)
+
                 batch["log_probs_length"] = self.model.transform_input_lengths(
                     batch["spectrogram_length"]
                 )
@@ -191,6 +207,10 @@ class Trainer(BaseTrainer):
             current = batch_idx
             total = self.len_epoch
         return base.format(current, total, 100.0 * current / total)
+
+    def _log_audio(self, audios):
+        audio = random.choice(audios)
+        self.writer.add_audio("audio_train", audio, self.config.config['preprocessing']['sr'])
 
     def _log_predictions(
             self,
